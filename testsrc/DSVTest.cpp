@@ -83,6 +83,47 @@ EXPECT_EQ(output[1],"");
 EXPECT_TRUE(Reader.End());
 }
 
+TEST(DSVReader, CBS){
+auto InStreamStops = std::make_shared<CStringDataSource>("stop_id,node_id\n1,1001");
+auto InStreamRoutes = std::make_shared<CStringDataSource>("route,stop_id");
+auto CSVReaderStops = std::make_shared<CDSVReader>(InStreamStops, ',');
+auto CSVReaderRoutes = std::make_shared<CDSVReader>(InStreamRoutes, ',');
+std::vector<std::string> output;
+EXPECT_TRUE(CSVReaderStops->ReadRow(output));
+output.clear();
+EXPECT_TRUE(CSVReaderStops->ReadRow(output));
+EXPECT_EQ(std::stoull(output[0]),1);
+EXPECT_EQ(std::stoull(output[1]),1001);
+output.clear();
+EXPECT_TRUE(CSVReaderRoutes->ReadRow(output));
+}
+
+TEST(DSVReader, CBS_harder){
+auto Source = std::make_shared<CStringDataSource>("stop_id,node_id\n22079,2580285987\n22071,4595133310\n22036,95715556\n22048,5352536590");
+CDSVReader Reader(Source,',');
+std::vector<std::string> output;
+EXPECT_TRUE(Reader.ReadRow(output));
+output.clear();
+EXPECT_TRUE(Reader.ReadRow(output));
+EXPECT_EQ(std::stoull(output[0]),22079);
+EXPECT_EQ(std::stoull(output[1]),2580285987);
+output.clear();
+EXPECT_TRUE(Reader.ReadRow(output));
+EXPECT_EQ(std::stoull(output[0]),22071);
+EXPECT_EQ(std::stoull(output[1]),4595133310);
+output.clear();
+EXPECT_TRUE(Reader.ReadRow(output));
+EXPECT_EQ(std::stoull(output[0]),22036);
+EXPECT_EQ(std::stoull(output[1]),95715556);
+output.clear();
+EXPECT_TRUE(Reader.ReadRow(output));
+EXPECT_EQ(std::stoull(output[0]),22048);
+EXPECT_EQ(std::stoull(output[1]),5352536590);
+}
+
+
+
+
 TEST(DSVWriter, Write0){
 auto Sink = std::make_shared<CStringDataSink>();
 CDSVWriter Writer(Sink,'&',false);

@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+/.vscode/*
+/bin/*
+/obj/*
+start_ecs34_development.py
+Dockerfile

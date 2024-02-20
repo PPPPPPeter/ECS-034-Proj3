@@ -1,7 +1,7 @@
 #include "XMLReader.h"
 #include <expat.h>
 #include <queue>
-
+#include<iostream>
 struct CXMLReader::SImplementation{
     std::shared_ptr<CDataSource> DDataSource;
     XML_Parser DXMLParser;
@@ -72,19 +72,21 @@ struct CXMLReader::SImplementation{
         //Reader from source if necessary
         //pass to XML_Parse function
         //return entity
+
         std::vector<char> DataBuffer;
         while(DEntityQueue.empty()){
             if(DDataSource->Read(DataBuffer,256)){
                 XML_Parse(DXMLParser,DataBuffer.data(),DataBuffer.size(),DataBuffer.size()<256);
             }
             else{
-                XML_Parse(DXMLParser,DataBuffer.data(),0,true);
+                XML_Parse(DXMLParser, nullptr, 0, true);
+                break;
             }
-        }
-        
-        if(DEntityQueue.empty()){
+        }        
+        if(DEntityQueue.empty()&&DDataSource->End()){
             return false;
         }
+        
         entity = DEntityQueue.front();
         if(skipcdata){
             while (entity.DType==SXMLEntity::EType::CharData)
@@ -95,7 +97,7 @@ struct CXMLReader::SImplementation{
         }        
         DEntityQueue.pop();
         return true;
-
+ 
     }
 
 };
